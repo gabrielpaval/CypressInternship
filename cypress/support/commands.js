@@ -23,3 +23,14 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+  Cypress.Commands.add('Login', ()=>{
+    cy.request('POST', "https://api.amprenta.at.assistcloud.services/api/v1/users/sign_in", 
+    {email: "gabipaval17@gmail.com", 
+    password: "123456789",
+    }).then((response) => {
+      window.localStorage.setItem('token', JSON.stringify(response.body.auth_token))
+    })
+    cy.visit("https://amprenta.at.assistcloud.services/")
+  })
+
