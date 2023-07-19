@@ -317,12 +317,60 @@ describe('"Gospodarie" section tests',()=>{
     })
 })
 
-describe('"Alimentație" section tests',()=>{
+describe.only('"Alimentație" section tests',()=>{
     beforeEach(()=>{
         cy.visit('https://amprenta.at.assistcloud.services/mancare/73')
     })
 
     it('Verify if the user is able see the results of the form after "Alimentație" section', ()=>{
-        // to do       
+        cy.get('button[class="button-try"]')
+        .contains('Bine')
+        .click()
+
+        for(let i=1; i<=11;i++)
+        {
+            cy.get('input[value="2"]')
+            .check()
+
+            cy.get(forwardButton)
+            .click()
+        }
+
+        cy.get('p[class="transport-question_transportQuestion_CongradualtionText__Gwe+N"]')
+        .should('be.visible')
+        .should('have.text', "Felicitări, ai terminat de completat formularul! Ești gata să vezi rezultatele?")
+
+        cy.get('button[class="button-try"]')
+        .contains('Da, sunt gata')
+        .click()
+
+        cy.get('div[class="results_result_ModalBody__ngu18"]')
+        .should('exist')
+        .should('contain', "Transport")
+        .should('contain', "Alimentație")
+        .should('contain', "Gospodărie")
+    })
+
+    it('Verify if all apple buttons of the section are able to use', ()=>{
+        cy.get('button[class="button-try"]')
+        .contains('Bine')
+        .click()
+
+        for(let i=1; i<=11; i++)
+        {
+            for(let j=0; j<=4; j++)
+            {
+                cy.get(`input[value="${j}"]`)
+                .check()
+                .should('be.checked')
+            }
+
+            cy.get(forwardButton)
+            .click()
+        }
+    })
+
+    it('Verify if the description of apple buttons has the same consistency as the letters', ()=>{
+        //to do
     })
 })
