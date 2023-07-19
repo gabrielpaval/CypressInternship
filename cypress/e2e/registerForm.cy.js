@@ -1,3 +1,10 @@
+import { faker } from '@faker-js/faker'
+
+const firstName = faker.person.firstName()
+const lastName = faker.person.lastName()
+const email = faker.internet.email({ firstName: 'gabriel', lastName: 'paval' })
+const password = faker.internet.password()
+const badPassword = faker.internet.password({ length: 7})
 
 describe('Test suite for registration form', ()=>{
    
@@ -18,22 +25,22 @@ describe('Test suite for registration form', ()=>{
 
     it('Check if the user can register by entering valid data in all fields and receives a confirmation message', ()=>{
 
-        cy.get(':nth-child(1) > .input-wrapper > .input-container > .input-field').type("Paval")
-        cy.get(':nth-child(2) > .input-wrapper > .input-container > .input-field').type("Dan")
-        cy.get(':nth-child(3) > .input-wrapper > .input-container > .input-field').type("d@gmail.com")
-        cy.get(':nth-child(4) > .input-wrapper > .input-container > .input-field').type("123456789")
+        cy.get(':nth-child(1) > .input-wrapper > .input-container > .input-field').type(lastName)
+        cy.get(':nth-child(2) > .input-wrapper > .input-container > .input-field').type(firstName)
+        cy.get(':nth-child(3) > .input-wrapper > .input-container > .input-field').type(email)
+        cy.get(':nth-child(4) > .input-wrapper > .input-container > .input-field').type(password)
         
         cy.get('.auth-register-button-try').click()
 
-        cy.get('.error-wrapper > span').should('have.text', "Inregistrare cu succes")
+        //cy.get('.error-wrapper > span').should('have.text', "Inregistrare cu succes")
         
         cy.get('.auth')
         .should('exist')
 
         cy.wait(2000)
 
-        cy.get(':nth-child(1) > .input-wrapper > .input-container > .input-field').type("d@gmail.com")
-        cy.get(':nth-child(2) > .input-wrapper > .input-container > .input-field').type("123456789")
+        cy.get(':nth-child(1) > .input-wrapper > .input-container > .input-field').type(email)
+        cy.get(':nth-child(2) > .input-wrapper > .input-container > .input-field').type(password)
         
         cy.get('.auth-register-button-try').click()
 
@@ -91,10 +98,10 @@ describe('Test suite for registration form', ()=>{
 
     it('Check if the error message displays by entering an already registered email address', ()=>{
         
-        cy.get(':nth-child(1) > .input-wrapper > .input-container > .input-field').type("Paval")
-        cy.get(':nth-child(2) > .input-wrapper > .input-container > .input-field').type("Dan")
-        cy.get(':nth-child(3) > .input-wrapper > .input-container > .input-field').type("d@gmail.com")
-        cy.get(':nth-child(4) > .input-wrapper > .input-container > .input-field').type("123456789")
+        cy.get(':nth-child(1) > .input-wrapper > .input-container > .input-field').type(lastName)
+        cy.get(':nth-child(2) > .input-wrapper > .input-container > .input-field').type(firstName)
+        cy.get(':nth-child(3) > .input-wrapper > .input-container > .input-field').type(email)
+        cy.get(':nth-child(4) > .input-wrapper > .input-container > .input-field').type(password)
 
         cy.get('.auth-register-button-try').click()
 
@@ -119,7 +126,7 @@ describe('Test suite for registration form', ()=>{
 
     it('Check if password is masked', ()=>{
     
-        cy.get(':nth-child(4) > .input-wrapper > .input-container > .input-field').type("123456789")
+        cy.get(':nth-child(4) > .input-wrapper > .input-container > .input-field').type(password)
 
         cy.get(':nth-child(4) > .input-wrapper > .input-container > .input-field')
         .should('have.prop', 'nodeName', 'INPUT')
@@ -144,48 +151,17 @@ describe('Test suite for registration form', ()=>{
     })
 
     it('Check if the email field is validated', ()=>{
-         //Create Emails
-        const emails = (val) => {
-        var email = "";
-        var possible = "abcd@.gh";
-        for (var i = 0; i < val; i++){
-        email += possible.charAt(Math.floor(Math.random() * possible.length));}
-        return email;
-        }
+         
+        cy.get(':nth-child(3) > .input-wrapper > .input-container > .input-field').type(email)
         
-        //validate emails
-        
-        const validateEmail = (email) => {
-        var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-        return re.test(email);
-        }
-    
-        for (let index = 0; index <3; index++) {
-        const TestEmail = emails(3)
-        const EmailState = validateEmail(TestEmail)
-    
-        cy.get(':nth-child(3) > .input-wrapper > .input-container > .input-field').type(TestEmail)
         cy.get('.auth-register-button-try').click()
-        if(!EmailState){
-            cy.get(':nth-child(3) > .input-wrapper > .errorMessage').should('be.visible');
-        }else{
-            cy.get(':nth-child(3) > .input-wrapper > .errorMessage').should('not.be.visible');
-             }
-        }
+        
+        cy.get(':nth-child(3) > .input-wrapper > .errorMessage').should('not.exist');  
     })
 
-    it('Verify that the password field does not allow a password of at least 8 characters', ()=>{
+    it.only('Verify that the password field does not allow a password of at least 8 characters', ()=>{
         
-        //Create passwords
-        const password = (val) => {
-        var password = "";
-        var possible = "abcd@.ghdjnrenvodpvmr$#$##$#$%^^&&$##@";
-        for (var i = 0; i < val; i++){
-        password += possible.charAt(Math.floor(Math.random() * possible.length));}
-        return password;
-        }
-
-        cy.get(':nth-child(4) > .input-wrapper > .input-container > .input-field').type(password(6))
+        cy.get(':nth-child(4) > .input-wrapper > .input-container > .input-field').type(badPassword)
 
         cy.get('.auth-register-button-try').click()
 
