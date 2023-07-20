@@ -1,9 +1,12 @@
 import { faker } from '@faker-js/faker'
+import Login from '../integration/PageObject/login'
 
 const email = "gabipaval17@gmail.com"
 const password = "123456789"
 const randomEmail = faker.internet.email({ firstName: 'gabriel', lastName: 'paval' })
 const randomPassword = faker.internet.password()
+
+const loginPage = new Login()
 
 describe('Login', ()=>{
     beforeEach(()=>{
@@ -14,26 +17,24 @@ describe('Login', ()=>{
         
         cy.get('div[class="auth-container"]').should('be.visible')
 
-        cy.get('input[type="text"]').type(email)
-        cy.get('input[type="password"]').type(password)
-
-        cy.get('button[class="auth-register-button-try"]').click()
-
-        cy.get('div[class="profile-image"]').should('exist')
+        loginPage.email(email)
+        loginPage.password(password)
+        loginPage.submit()
+        loginPage.verifyLogin()
     })
 
     it('Login via Api', () => {
         cy.Login()
 
-        cy.get('div[class="profile-image"]').should('exist')
+        loginPage.verifyLogin()
     })
 
     it('Check if the Show Password feature works', ()=>{
         cy.get('.left-icon > svg')
         .should('exist')
 
-        cy.get('input[type="text"]').type(email)
-        cy.get('input[type="password"]').type(password)
+        loginPage.email(email)
+        loginPage.password(password)
         
         cy.get('.left-icon > svg').click()
 
@@ -44,24 +45,25 @@ describe('Login', ()=>{
 
     it('Check if the Log Out button works', ()=>{
         
-        cy.get('input[type="text"]').type(email)
-        cy.get('input[type="password"]').type(password)
-
-        cy.get('.auth-register-button-try').click()
-
-        cy.get('div[class="profile-image"]').should('exist')
+        loginPage.email(email)
+        loginPage.password(password)
+        loginPage.submit()
+        loginPage.verifyLogin()
 
         cy.get('.auth-user > svg').click()
 
-        cy.get('div[class="auth-container"]').should('be.visible')
+        cy.get('div[class="auth-container"]')
+        .should('be.visible')
     })
 
     it('Verify that the fields for log in are required', ()=>{
-        cy.get('.auth-register-button-try').click()
+        loginPage.submit()
 
-        cy.get('div[class="auth-container"]').should('be.visible')
+        cy.get('div[class="auth-container"]')
+        .should('be.visible')
 
-        cy.get('.error-wrapper > span').should('exist')
+        cy.get('.error-wrapper > span')
+        .should('exist')
 
         for (let i=1;i<=2;i++)
             {
@@ -72,12 +74,13 @@ describe('Login', ()=>{
     })
 
     it('Check if you can connect to the system using the Enter button', ()=>{
-        cy.get('input[type="text"]').type(email)
-        cy.get('input[type="password"]').type(password,'{enter}')
+        loginPage.email(email)
         
-        cy.get('.auth-register-button-try').click()
+        cy.get('input[type="password"]')
+        .type(password)
+        .type('{enter}')
 
-        cy.get('div[class="profile-image"]').should('exist')
+        loginPage.verifyLogin()
     })
 
     it('Verify the Forgot Password functionality', ()=>{
@@ -86,12 +89,14 @@ describe('Login', ()=>{
         .should('have.text', "Forgot password?")
         .click()
 
-        cy.get('div[class="auth-container"]').find('forgot-password').should('be.visible')
+        cy.get('div[class="auth-container"]')
+        .find('forgot-password')
+        .should('be.visible')
     })
 
     it('Check if password is masked', ()=>{
     
-        cy.get('input[type="password"]').type(password)
+        loginPage.password(password)
 
         cy.get('input[type="password"]')
         .should('have.prop', 'nodeName', 'INPUT')
@@ -100,17 +105,15 @@ describe('Login', ()=>{
 
     it('Check that the password cannot be copied', ()=>{
         //to do
-        cy.get('input[type="password"]').type(password)
+        loginPage.password(password)
 
         cy.task('getClipboard').should('not.eq', password)
     })
 
     it('Check if the login functionality works with invalid credentials', ()=>{
-        cy.get('input[type="text"]').type(randomEmail)
-
-        cy.get('input[type="password"]').type(randomPassword)
-
-        cy.get('.auth-register-button-try').click()
+        loginPage.email(randomEmail)
+        loginPage.password(randomPassword)
+        loginPage.submit()
 
         cy.get('div[class="error-wrapper"]')
         .should('exist')
